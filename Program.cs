@@ -1,15 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
-namespace ConsoleApplication
+namespace FieldOfWonders
 {
     internal class Program
     {
+        private static string Roll()
+        {
+            List<string> rollValues = new List<string>() {"200", "400", " Б ", " + ", "100"};
+            Random rnd = new Random();
+            int rollNumber = rnd.Next(1, rollValues.Count);
+            string rollResult = rollValues[rollNumber];
+            for (int i = 0; i <= rollNumber + 20; i++)
+            {
+                int y = Console.CursorTop;
+                Console.SetCursorPosition(0, y);
+                Console.Write("| {0,3} |", rollValues[i % rollValues.Count]);
+                Thread.Sleep(200);
+            }
+            Console.WriteLine(" --> Result = {0}", rollResult);
+//            Console.ReadKey();
+            return rollResult;
+        }
+
         public static void Main()
         {
             List<string> tasksList = new List<string>() {"КУКУРУЗА", "АНАНАС", "ГРИБ"};
-            int attempts = 5;
+            int attempts = 5; // Попытки
+            int points = 0;
             Random rnd = new Random();
             string task = tasksList[rnd.Next(0, tasksList.Count)];
             char[] taskState = new char[task.Length];
@@ -19,7 +39,21 @@ namespace ConsoleApplication
             {
                 Console.WriteLine("-------------------------------- \n" +
                                   "* Ваше задание: {0}\n" +
-                                  "--------------------------------", new string(taskState));
+                                  "* Набрано     : {1} очков \n"+
+                                  "--------------------------------", new string(taskState), points);
+                Console.Write("Крутите барабан!(Press Enter)");
+                Console.ReadKey();
+                Console.ReadKey();
+                Console.WriteLine();
+                string rollResult = Roll();
+                if (int.TryParse(rollResult, out int currentPoint))
+                {
+                    Console.WriteLine("У вас выпало {0} очков", currentPoint);
+                }
+                else
+                {
+                    Console.WriteLine("Other");
+                }
                 Console.Write("Ваша буква: ");
                 char choiceLetter = Char.ToUpper(Console.ReadKey().KeyChar);
                 Console.WriteLine();
@@ -31,6 +65,7 @@ namespace ConsoleApplication
                         if (task[i] == choiceLetter)
                         {
                             taskState[i] = choiceLetter;
+                            points += currentPoint;
                         }
                     }
                     bool checkEnd = true;
@@ -54,6 +89,10 @@ namespace ConsoleApplication
                     Console.WriteLine("Вам не удалось отгадать слово.");
                     break;
                 }
+                Console.Write("(Press Enter)");
+                Console.ReadKey();
+                Console.ReadKey();
+                Console.Clear();
             }
         }
     }
