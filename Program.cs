@@ -39,11 +39,10 @@ namespace FieldOfWonders
             {
                 Console.WriteLine("-------------------------------- \n" +
                                   "* Ваше задание: {0}\n" +
-                                  "* Набрано     : {1} очков \n"+
+                                  "* Набрано     : {1} очков \n" +
                                   "--------------------------------", new string(taskState), points);
-                Console.Write("Крутите барабан!(Press Enter)");
-                Console.ReadKey();
-                Console.ReadKey();
+                Console.Write("Крутите барабан!(Press EnyKey...)");
+                Console.ReadKey(true);
                 Console.WriteLine();
                 string rollResult = Roll();
                 if (int.TryParse(rollResult, out int currentPoint))
@@ -89,8 +88,7 @@ namespace FieldOfWonders
                     Console.WriteLine("Вам не удалось отгадать слово.");
                     break;
                 }
-                Console.Write("(Press Enter)");
-                Console.ReadKey();
+                Console.Write("(Press EnyKey)");
                 Console.ReadKey();
                 Console.Clear();
             }
