@@ -8,6 +8,9 @@ namespace FieldOfWonders
     internal class Program
     {
         private static string Roll()
+        /*
+         * Вращение барабана
+         */
         {
             List<string> rollValues = new List<string>() {"200", "400", " Б ", " + ", "100"};
             Random rnd = new Random();
@@ -21,38 +24,101 @@ namespace FieldOfWonders
                 Thread.Sleep(200);
             }
             Console.WriteLine(" --> Result = {0}", rollResult);
-//            Console.ReadKey();
             return rollResult;
         }
 
         public static void Main()
         {
-            List<string> tasksList = new List<string>() {"КУКУРУЗА", "АНАНАС", "ГРИБ"};
-            int attempts = 5; // Попытки
-            int points = 0;
+            List<string> names = new List<string> {"Иван", "Алексей", "Кирилл"};
+            List<int> points = new List<int>() {0, 0, 0};
+            List<int> successWords = new List<int> {0, 0, 0};
+
+            int turn = 0; // Чей сейчас ход
+
+            List<string> tasksList = new List<string> {"КУКУРУЗА", "АНАНАС", "ГРИБ"};
+            List<string> tasksDescription = new List<string> // Подсказки к заданиям
+            {
+                "В этих желтых пирамидках Сотни зерен аппетитных.",
+                "Далеко на юге где-то. Он растет зимой и летом. Удивит собою нас ",
+                "Стоял на крепкой ножке, теперь лежит в лукошке."
+            };
             Random rnd = new Random();
-            string task = tasksList[rnd.Next(0, tasksList.Count)];
-            char[] taskState = new char[task.Length];
+            int numTask = rnd.Next(0, tasksList.Count); // Номер текущего задания
+            string task = tasksList[numTask]; // Текущее задание
+            char[] taskState = new char[task.Length]; // Состояние задания (сколько букв угадано)
+
+            // Заполняем задание звездочками *****
             taskState = taskState.Select(i => '*').ToArray();
             Console.Clear();
+
+            Console.WriteLine("Задание на игру: ");
+            Console.WriteLine("\"{0}\"", tasksDescription[numTask]);
+            // Main LOOP
             while (true)
             {
                 Console.WriteLine("-------------------------------- \n" +
-                                  "* Ваше задание: {0}\n" +
-                                  "* Набрано     : {1} очков \n" +
-                                  "--------------------------------", new string(taskState), points);
-                Console.Write("Крутите барабан!(Press EnyKey...)");
-                Console.ReadKey(true);
+                                  "* Ходит игрок         <<{0}>>   \n" +
+                                  "* СЛОВО: {1}                     \n" +
+                                  "* Набрано              {2} очков \n" +
+                                  "--------------------------------", names[turn], new string(taskState), points[turn]);
+                Console.WriteLine("{0}, что будете делать?", names[turn]);
+                Console.WriteLine("1.Крутить барабан!");
+                Console.WriteLine("2.Напомнить задание");
+                Console.WriteLine("3.Назвать слово");
+                int choice = int.Parse(Console.ReadKey().KeyChar.ToString());
                 Console.WriteLine();
+                if (choice == 2)
+                {
+                    Console.WriteLine("Задание на игру: ");
+                    Console.WriteLine("\"{0}\"", tasksDescription[numTask]);
+                    Console.Write("А теперь вращайте барабан! ");
+                    Console.Write("(Press EnyKey)");
+                    Console.ReadKey();
+                }
+                else if (choice == 3)
+                {
+                    Console.Write("Назовите слово: ");
+                    string word = Console.ReadLine();
+                    if (word.ToUpper() == task)
+                    {
+                        Console.WriteLine("Поздравляем! Вы угадали слово и выиграли а-а-а-а-втомобиль!!!");
+                        break;
+                    }
+
+                    Console.WriteLine("Увы. Вы неправильно назвали слово");
+                    Console.Write("Переход хода");
+                    turn = ++turn % names.Count;
+                    Console.Write("(Press EnyKey)");
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+                // Вращаем Барабан
                 string rollResult = Roll();
-                if (int.TryParse(rollResult, out int currentPoint))
+                Console.WriteLine("RollResult {0}", rollResult);
+                int currentPoint;
+                if (int.TryParse(rollResult, out currentPoint)) // Если выпал цифровой сектор
                 {
                     Console.WriteLine("У вас выпало {0} очков", currentPoint);
                 }
-                else
+                else // если выпал не цифровой сектор
                 {
-                    Console.WriteLine("Other");
+                    if (rollResult == " Б ")
+                    {
+                        Console.WriteLine("Увы. У вас Банкрот. Ваши очки сгорели.");
+                        Console.Write("Переход хода");
+                        turn = ++turn % names.Count;
+                        Console.Write("(Press EnyKey)");
+                        Console.ReadKey();
+                        Console.Clear();
+                        continue;
+                    }
+                    if (rollResult == " + ")
+                    {
+                        // Реализуйте самостоятельно
+                        Console.WriteLine("Сектор + еще не реализован...");
+                    }
                 }
+
                 Console.Write("Ваша буква: ");
                 char choiceLetter = Char.ToUpper(Console.ReadKey().KeyChar);
                 Console.WriteLine();
@@ -64,9 +130,10 @@ namespace FieldOfWonders
                         if (task[i] == choiceLetter)
                         {
                             taskState[i] = choiceLetter;
-                            points += currentPoint;
+                            points[turn] += currentPoint;
                         }
                     }
+                    // Проверяем, остались ли неотгаданные буквы
                     bool checkEnd = true;
                     foreach (char letter in taskState)
                     {
@@ -74,19 +141,15 @@ namespace FieldOfWonders
                     }
                     if (checkEnd)
                     {
-                        Console.WriteLine("Поздравляем! Вы угадали слово и выиграли а-а-а-а-в-томобиль!!!");
+                        Console.WriteLine("{0}, поздравляем! Вы угадали слово и выиграли а-а-а-а-втомобиль!!!", names[turn]);
                         break;
                     }
                 }
                 else
                 {
                     Console.WriteLine("Сожалеем, такой буквы нет -( ");
-                    Console.WriteLine("У вас осталось {0} попыток", --attempts);
-                }
-                if (attempts == 0)
-                {
-                    Console.WriteLine("Вам не удалось отгадать слово.");
-                    break;
+                    Console.WriteLine("Переход хода");
+                    turn = ++turn % names.Count;
                 }
                 Console.Write("(Press EnyKey)");
                 Console.ReadKey();
